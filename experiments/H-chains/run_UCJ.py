@@ -28,7 +28,8 @@ alpha_beta_indices  = lambda norb: None
 # Variational optimization settings
 optimizer_method = "L-BFGS-B"
 optimizer_options = {"maxiter": 10000, "gtol": 1e-9, "ftol": 1e-9}
-optimizer_chunk_size = None 
+optimizer_chunk_size = None
+n_timing_trials = 10
 
 
 def generate_linear_geometry(atom: str, natoms: int, atomic_distance: float = 1.0) -> str:
@@ -140,17 +141,27 @@ for natoms in natoms_values:
     ucj_ccsd_energy = backprop.propagate()
     propagate_runtime = time.perf_counter() - t_start
 
-    # Variationally optimize the circuit parameters starting from the CCSD-derived parameters
+    # Variationally optimize the circuit parameters starting from the CCSD-derived
+    # parameters. Repeat the optimization `n_timing_trials` times
     checkpoint_path = results_dir / "UCJ_checkpoint.npz"
-    t_start = time.perf_counter()
-    result = backprop.optimize_jax(
-        interaction_pairs=(alpha_alpha_indices(num_orb), alpha_beta_indices(num_orb)),
-        chunk_size=chunk_size,
-        method=optimizer_method,
-        options=optimizer_options,
-        checkpoint_path=checkpoint_path,
+    initial_parameters = ucj_op.to_parameters(
+        interaction_pairs=(alpha_alpha_indices(num_orb), alpha_beta_indices(num_orb))
     )
-    optimize_runtime = time.perf_counter() - t_start
+    optimize_runtimes = np.empty(n_timing_trials)
+    result = None
+    for trial in range(n_timing_trials):
+        t_start = time.perf_counter()
+        result = backprop.optimize_jax(
+            x0=initial_parameters,
+            interaction_pairs=(alpha_alpha_indices(num_orb), alpha_beta_indices(num_orb)),
+            chunk_size=chunk_size,
+            method=optimizer_method,
+            options=optimizer_options,
+            checkpoint_path=checkpoint_path,
+        )
+        optimize_runtimes[trial] = time.perf_counter() - t_start
+    optimize_runtime_mean = optimize_runtimes.mean()
+    optimize_runtime_sem = optimize_runtimes.std(ddof=1) / np.sqrt(n_timing_trials)
     ucj_optimized_energy = backprop.propagate(show_progress=False)
 
     print(f"Hartree-Fock energy: {hf_energy:.10f} Ha")
@@ -158,7 +169,10 @@ for natoms in natoms_values:
     print(f"CCSD-parameterized UCJ energy: {ucj_ccsd_energy:.10f} Ha")
     print(f"Variationally optimized UCJ energy: {ucj_optimized_energy:.10f} Ha")
     print(f"Backpropagation (CCSD-parameterized) runtime: {propagate_runtime:.4f} s")
-    print(f"Variational optimization runtime: {optimize_runtime:.4f} s")
+    print(
+        f"Variational optimization runtime ({n_timing_trials} trials): "
+        f"{optimize_runtime_mean:.4f} +/- {optimize_runtime_sem:.4f} s"
+    )
 
     np.savez(
         results_path,
@@ -172,7 +186,9 @@ for natoms in natoms_values:
         ucj_ccsd_energy=ucj_ccsd_energy,
         ucj_optimized_energy=ucj_optimized_energy,
         propagate_runtime=propagate_runtime,
-        optimize_runtime=optimize_runtime,
+        optimize_runtimes=optimize_runtimes,
+        optimize_runtime_mean=optimize_runtime_mean,
+        optimize_runtime_sem=optimize_runtime_sem,
         optimizer_nit=result.nit,
         optimizer_nfev=result.nfev,
         optimizer_njev=result.get("njev", result.nfev),
