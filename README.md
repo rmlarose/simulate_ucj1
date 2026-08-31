@@ -14,12 +14,38 @@ pip install ./fermionic-backpropagation
 The `experiments/` directory contains scripts and the results of experiments from https://arxiv.org/abs/2607.21337, namely the variational optimization of UCJ ansatze for the $n = 72$ qubit iron sulfur cluster, with 1 and 1.5 layers:
 ```bash 
 .
+├── H-chains
+│   ├── n12
+│   │   ├── UCJ_checkpoint.npz
+│   │   ├── UCJ_results.npz
+│   │   └── ucj_initial.pkl
+│   ├── n16
+│   │   ├── UCJ_checkpoint.npz
+│   │   ├── UCJ_results.npz
+│   │   └── ucj_initial.pkl
+│   ├── n20
+│   │   ├── UCJ_checkpoint.npz
+│   │   ├── UCJ_results.npz
+│   │   └── ucj_initial.pkl
+│   ├── n4
+│   │   ├── UCJ_checkpoint.npz
+│   │   ├── UCJ_results.npz
+│   │   └── ucj_initial.pkl
+│   ├── n8
+│   │   ├── UCJ_checkpoint.npz
+│   │   ├── UCJ_results.npz
+│   │   └── ucj_initial.pkl
+│   └── run_UCJ.py
 ├── UCJ-1
+│   ├── UCJ_checkpoint.npz
+│   ├── UCJ_results.npz
 │   ├── opt_energy.py
 │   ├── run_UCJ.py
 │   ├── ucj_initial.pkl
 │   └── ucj_optimized.pkl
 ├── UCJ-1.5
+│   ├── UCJ_checkpoint.npz
+│   ├── UCJ_results.npz
 │   ├── opt_energy.py
 │   ├── run_UCJ.py
 │   ├── ucj_initial.pkl
