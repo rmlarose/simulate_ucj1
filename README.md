@@ -24,7 +24,7 @@ pip install ./fermionic-backpropagation
 
 ## Plotting and data
 
-The [plot/](./plot/) contains data and a script to reproduce plots.
+The [plot/](./plot/) directory contains data and a script to reproduce plots.
 
 ## AI statement
 
