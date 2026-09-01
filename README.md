@@ -11,7 +11,7 @@ Companion repository for https://arxiv.org/abs/2607.21337. Simulate depth one un
 
 ## Optimization 
 
-The [`optimization/`](./optimization/) directory contains scripts and the results of optimization experiments. The [`]`run_UCJ.py` scripts optimize the UCJ ansatz from a CCSD-initialized parameters `ucj_initial.pkl`, and saves the final results to `UCJ_results.npz`. We have also included the best UCJ operator found during our optimization runs, saved to `ucj_optimized.pkl`. The `opt_energy.py` scripts calculate the optimized UCJ energy from `ucj_optimized.pkl`.
+The [`optimization/`](./optimization/) directory contains scripts and the results of optimization experiments. The `run_UCJ.py` scripts optimize the UCJ ansatz from a CCSD-initialized parameters `ucj_initial.pkl`, and saves the final results to `UCJ_results.npz`. We have also included the best UCJ operator found during our optimization runs, saved to `ucj_optimized.pkl`. The `opt_energy.py` scripts calculate the optimized UCJ energy from `ucj_optimized.pkl`.
 
 This uses the `fermionic-backpropagation/` directory which contains code with a JAX implementation of the backpropagation algorithm, enabling the variational optimization of UCJ circuits. It can be installed via pip: 
 ```bash
